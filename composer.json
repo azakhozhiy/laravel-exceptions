@@ -1,0 +1,40 @@
+{
+    "name": "azakhozhiy/laravel-exceptions",
+    "version": "1.0.0",
+    "description": "Laravel Exceptions",
+    "authors": [
+        {
+            "name": "Aleksandr Zakhozhiy",
+            "email": "azakhozhiiy@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "^10.48"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.4",
+        "orchestra/testbench": "^8.0",
+        "roave/security-advisories": "dev-latest"
+    },
+    "autoload": {
+        "psr-4": {
+            "AZakhozhiy\\Laravel\\Exceptions\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AZakhozhiy\\Laravel\\Exceptions\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "csf": [
+            "./vendor/bin/php-cs-fixer fix src --using-cache=no --allow-risky=yes"
+        ],
+        "clb": [
+            "git branch | grep -v $(git branch --show-current) | grep -v \"master\" | xargs git branch -D"
+        ]
+    },
+    "minimum-stability": "stable",
+    "type": "library"
+}
