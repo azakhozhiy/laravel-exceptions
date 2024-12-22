@@ -1,1 +1,1 @@
-# wector975/laravele-exceptions
+# azakhozhiy/laravel-exceptions
