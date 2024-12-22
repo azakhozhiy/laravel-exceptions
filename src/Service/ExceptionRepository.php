@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AZakhozhiy\Laravel\Exceptions\Service;
 
+use AZakhozhiy\Laravel\Exceptions\Contract\ExceptionRepositoryInterface;
 use Closure;
 use Throwable;
 use AZakhozhiy\Laravel\Exceptions\BaseExceptionCategory;
@@ -17,7 +18,7 @@ use AZakhozhiy\Laravel\Exceptions\System\ExceptionCodeAlreadyRegistered;
 use AZakhozhiy\Laravel\Exceptions\System\UnknownExceptionCategory;
 use AZakhozhiy\Laravel\Exceptions\System\UnknownExceptionCode;
 
-class ExceptionRepository
+class ExceptionRepository implements ExceptionRepositoryInterface
 {
     /** @var Closure[] */
     protected array $categories;
@@ -28,24 +29,6 @@ class ExceptionRepository
     public function getCategoriesSlugs(): array
     {
         return array_keys($this->categories);
-    }
-
-    public function assertCategoryNotExists(string $catSlug): void
-    {
-        if (isset($this->categories[$catSlug])) {
-            throw new ExceptionCategoryAlreadyRegistered(
-                "Category $catSlug already registered."
-            );
-        }
-    }
-
-    public function assertCategoryExists(string $catSlug): void
-    {
-        if (!isset($this->categories[$catSlug])) {
-            throw new UnknownExceptionCategory(
-                "Unknown exception category $catSlug."
-            );
-        }
     }
 
     /**
@@ -82,25 +65,6 @@ class ExceptionRepository
         return $this;
     }
 
-    protected function assertCategoryAndExceptionNotExist(string $catSlug, int $errorCode): void
-    {
-        if (isset($this->exceptions[$catSlug][$errorCode])) {
-            throw new ExceptionCodeAlreadyRegistered(
-                "Exception code [$errorCode] already " .
-                "registered for the [$catSlug] category."
-            );
-        }
-    }
-
-    protected function assertCategoryAndExceptionExist(string $catSlug, int $errorCode): void
-    {
-        if (!isset($this->exceptions[$catSlug][$errorCode])) {
-            throw new UnknownExceptionCode(
-                "Unknown exception code $errorCode for category $catSlug."
-            );
-        }
-    }
-
     /**
      * @param string $catSlug
      * @return BaseExceptionObject[]
@@ -115,28 +79,6 @@ class ExceptionRepository
         }
 
         return $items;
-    }
-
-    public function getExceptionObject(string $catSlug, int $errorCode): BaseExceptionObject
-    {
-        $this->assertCategoryExists($catSlug);
-        $this->assertCategoryAndExceptionExist($catSlug, $errorCode);
-
-        return $this->exceptions[$catSlug][$errorCode]();
-    }
-
-    public function getExceptionCategory(string $catSlug, bool $withCodes = false): ExceptionCategoryItem
-    {
-        $this->assertCategoryExists($catSlug);
-
-        /** @var ExceptionCategoryItem $cat */
-        $cat = $this->categories[$catSlug]();
-
-        if ($withCodes) {
-            $cat->addCodes($this->getExceptionObjectsByCategory($catSlug));
-        }
-
-        return $cat;
     }
 
     public function buildException(
@@ -169,5 +111,64 @@ class ExceptionRepository
             )),
             $previous
         );
+    }
+
+    public function getExceptionObject(string $catSlug, int $errorCode): BaseExceptionObject
+    {
+        $this->assertCategoryExists($catSlug);
+        $this->assertCategoryAndExceptionExist($catSlug, $errorCode);
+
+        return $this->exceptions[$catSlug][$errorCode]();
+    }
+
+    public function getExceptionCategory(string $catSlug, bool $withCodes = false): ExceptionCategoryItem
+    {
+        $this->assertCategoryExists($catSlug);
+
+        /** @var ExceptionCategoryItem $cat */
+        $cat = $this->categories[$catSlug]();
+
+        if ($withCodes) {
+            $cat->addCodes($this->getExceptionObjectsByCategory($catSlug));
+        }
+
+        return $cat;
+    }
+
+    protected function assertCategoryNotExists(string $catSlug): void
+    {
+        if (isset($this->categories[$catSlug])) {
+            throw new ExceptionCategoryAlreadyRegistered(
+                "Category $catSlug already registered."
+            );
+        }
+    }
+
+    protected function assertCategoryExists(string $catSlug): void
+    {
+        if (!isset($this->categories[$catSlug])) {
+            throw new UnknownExceptionCategory(
+                "Unknown exception category $catSlug."
+            );
+        }
+    }
+
+    protected function assertCategoryAndExceptionNotExist(string $catSlug, int $errorCode): void
+    {
+        if (isset($this->exceptions[$catSlug][$errorCode])) {
+            throw new ExceptionCodeAlreadyRegistered(
+                "Exception code [$errorCode] already " .
+                "registered for the [$catSlug] category."
+            );
+        }
+    }
+
+    protected function assertCategoryAndExceptionExist(string $catSlug, int $errorCode): void
+    {
+        if (!isset($this->exceptions[$catSlug][$errorCode])) {
+            throw new UnknownExceptionCode(
+                "Unknown exception code $errorCode for category $catSlug."
+            );
+        }
     }
 }

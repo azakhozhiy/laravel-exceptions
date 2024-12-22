@@ -2,6 +2,7 @@
     "name": "azakhozhiy/laravel-exceptions",
     "version": "1.0.0",
     "description": "Laravel Exceptions",
+    "license": "MIT",
     "authors": [
         {
             "name": "Aleksandr Zakhozhiy",
